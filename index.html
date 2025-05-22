@@ -160,6 +160,28 @@
             padding: 20px;
             color: #999;
         }
+        .addon-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .addon-image {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            object-fit: contain;
+        }
+        .addon-image-container {
+            position: relative;
+        }
+        .addon-name {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +190,9 @@
             <h2>Product Preview</h2>
             <div class="product-image" id="product-image">
                 <img id="main-product-img" src="" alt="Select a product">
+            </div>
+            <div class="addon-images" id="addon-images-container">
+                <!-- Addon images will be added here dynamically -->
             </div>
             <div class="summary">
                 <h3>Configuration Summary</h3>
@@ -487,6 +512,48 @@
             function removeCartItem(itemId) {
                 cart = cart.filter(item => item.id !== itemId);
                 updateCartDisplay();
+            }
+
+            // Add this function to the existing script section
+            function updateProductImage() {
+                if (!selectedProduct) return;
+                
+                // Get the base product image
+                const productElement = document.querySelector(`#base-products .option-item[data-product="${selectedProduct}"]`);
+                let mainImageSrc = productElement.dataset.image;
+                
+                // Update the main product image
+                productImage.src = mainImageSrc;
+                productImage.alt = selectedProduct;
+                
+                // Get the addon images container
+                const addonImagesContainer = document.getElementById('addon-images-container');
+                addonImagesContainer.innerHTML = ''; // Clear previous addon images
+                
+                // Check for selected addons
+                const selectedAddonCheckboxes = document.querySelectorAll(`.addon-group[data-for="${selectedProduct}"] .addon-item input:checked`);
+                
+                if (selectedAddonCheckboxes.length > 0) {
+                    selectedAddonCheckboxes.forEach(addon => {
+                        if (addon.dataset.image) {
+                            const addonContainer = document.createElement('div');
+                            addonContainer.className = 'addon-image-container';
+                            
+                            const addonImg = document.createElement('img');
+                            addonImg.src = addon.dataset.image;
+                            addonImg.className = 'addon-image';
+                            addonImg.alt = addon.nextElementSibling.textContent.split('(+')[0].trim();
+                            
+                            const addonName = document.createElement('div');
+                            addonName.className = 'addon-name';
+                            addonName.textContent = addon.nextElementSibling.textContent.split('(+')[0].trim();
+                            
+                            addonContainer.appendChild(addonImg);
+                            addonContainer.appendChild(addonName);
+                            addonImagesContainer.appendChild(addonContainer);
+                        }
+                    });
+                }
             }
         });
     </script>
